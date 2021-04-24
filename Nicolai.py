@@ -6,10 +6,13 @@ from time import sleep
 from scipy.spatial import distance as dist  
 
 
+#Made with help from https://pysource.com/2019/03/25/pigs-nose-instagram-face-filter-opencv-with-python/
+
 #Call the webcam feed
 cap = cv2.VideoCapture(0)
-webcam = cv2.VideoCapture(0)
-#Import chosen photo
+#cap = cv2.VideoCapture(0)
+
+#Import chosen photo for masking
 nose_image = cv2.imread("test.png")
 mask_image = cv2.imread("Mask.png")
 
@@ -103,19 +106,12 @@ while True:
         frame[start_point[1]: start_point[1] + nose_height,
                     start_point[0]: start_point[0] + nose_width] = final_nose
         frame[top_left[1]: top_left[1] + face_height, top_left[0]: top_left[0] + face_width] = final_guy
-
-        #cv2.imshow("new nose", nose_image)
-        #cv2.imshow("nose_image", resize_nose)
-        #cv2.imshow('nosegray', nose_gray)
-        #cv2.imshow('nose', nose_mask)
-    
-    cv2.imshow("Frame", frame)
-    
+  
     cv2.imshow("Capturing", frame)
     key = cv2.waitKey(1)
     if key == ord('s'): 
         cv2.imwrite(filename='saved_img.jpg', img=frame)
-        webcam.release()
+        cap.release()
         print("Image saved!")
         
         break  
