@@ -39,7 +39,7 @@ while True:
         bottom_nose = (landmarks.part(33).x, landmarks.part(33 ).y)
         center_nose = (landmarks.part(30).x, landmarks.part(30).y)
         """
-         #View the points adjust if needed
+        #View the points adjust if needed
         cv2.circle(frame, top_nose, 2, (255,0,0), 1)
         cv2.circle(frame, left_nose, 2, (255,0,0), 1)
         cv2.circle(frame, right_nose, 2, (255,0,0), 1)
@@ -50,15 +50,18 @@ while True:
         right_face = (landmarks.part(26).x, landmarks.part(26).y)
         center_face = (landmarks.part(27).x, landmarks.part(27).y)
 
+        """
+        #View facepoint and adjust if needed
+        cv2.circle(frame, left_face, 2, (255,0,0), 1)
+        cv2.circle(frame, right_face, 2, (255,0,0), 1)
+        cv2.circle(frame, center_face, 2, (255,0,0), 1)
+        """
 
-
-          
         #Here using the distance formula to calculate the distance in euclidean space
         nose_width = int(hypot(left_nose[0]-right_nose[0], 
             left_nose[1]-right_nose[1])+ 30)
         nose_height = int(nose_width)
         
-
         #Calculating the face width
         face_width = int(hypot(left_face[0] - right_face[0], left_face[1] - right_face[1]) * 1.2)
         #face height
@@ -78,8 +81,10 @@ while True:
         #Resize facemask image
         face_guy = cv2.resize(mask_image, (face_width, face_height))
 
+        #Overlay image on the livefeed, using centernose as origin(Origo)
+        #using https://theailearner.com/2019/03/18/add-image-to-a-live-camera-feed-using-opencv-python/#:~:text=%20Steps%3A%20%201%20Take%20an%20image%20which,%28%29%206%20Press%20%E2%80%98q%E2%80%99%20to%20break%20More%20
+        
         #remove background
-       
         nose_gray = cv2.cvtColor(resize_nose, cv2.COLOR_BGR2GRAY)
         _, nose_mask = cv2.threshold(nose_gray, 25, 255, cv2.THRESH_BINARY_INV)
         nose_area = frame[start_point[1]: start_point[1] + nose_height,
@@ -97,9 +102,7 @@ while True:
         final_nose = cv2.add(nose_area_no_nose, resize_nose)
         frame[start_point[1]: start_point[1] + nose_height,
                     start_point[0]: start_point[0] + nose_width] = final_nose
-
         frame[top_left[1]: top_left[1] + face_height, top_left[0]: top_left[0] + face_width] = final_guy
-
 
         #cv2.imshow("new nose", nose_image)
         #cv2.imshow("nose_image", resize_nose)
@@ -108,32 +111,11 @@ while True:
     
     cv2.imshow("Frame", frame)
     
-
-    #frame[start_point[1]: start_point[1] + nose_width,
-    #   start_point[0]: start_point[0] + nose_width] = final_nose
-
-    #Overlay image on the livefeed, using centernose as origin(Origo)
-    #using https://theailearner.com/2019/03/18/add-image-to-a-live-camera-feed-using-opencv-python/#:~:text=%20Steps%3A%20%201%20Take%20an%20image%20which,%28%29%206%20Press%20%E2%80%98q%E2%80%99%20to%20break%20More%20
-    #for reference
-    
-     
-
     cv2.imshow("Capturing", frame)
     key = cv2.waitKey(1)
     if key == ord('s'): 
         cv2.imwrite(filename='saved_img.jpg', img=frame)
         webcam.release()
-        """
-        print("Processing image...")
-        img_ = cv2.imread('saved_img.jpg', cv2.IMREAD_ANYCOLOR)
-        print("Converting RGB image to grayscale...")
-        gray = cv2.cvtColor(img_, cv2.COLOR_BGR2GRAY)
-        print("Converted RGB image to grayscale...")
-        print("Resizing image to 28x28 scale...")
-        img_ = cv2.resize(gray,(28,28))
-        print("Resized...")
-        img_resized = cv2.imwrite(filename='saved_img-final.jpg', img=img_)
-        """
         print("Image saved!")
         
         break  
