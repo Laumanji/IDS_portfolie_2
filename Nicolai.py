@@ -1,85 +1,92 @@
-import cv2
-import numpy as numpy
+import cv2 
+import numpy as np
 import dlib
 from math import hypot
+from time import sleep
+from scipy.spatial import distance as dist  
+
+
+#Call the webcam feed
 cap = cv2.VideoCapture(0)
-
-##Made with help from https://pysource.com/2019/03/25/pigs-nose-instagram-face-filter-opencv-with-python/
-
-#image
-#load image with alpha channel.  use IMREAD_UNCHANGED to ensure loading of alpha channel
+webcam = cv2.VideoCapture(0)
+#Import chosen photo
 nose_image = cv2.imread("test.png")
 mask_image = cv2.imread("Mask.png")
 
+# call face detector and shapepredictor from dlib
 detector = dlib.get_frontal_face_detector()
+
+#File path of the shape prediction path
+#Download link at: https://github.com/GuoQuanhao/68_points/blob/master/shape_predictor_68_face_landmarks.dat
 predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
+_, frame = cap.read()
+rows, cols, _ = frame.shape
+nose_mask = np.zeros((rows, cols), np.uint8)
 
 while True: 
     _, frame = cap.read()
+    nose_mask.fill(0)
     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
     faces = detector(frame)
-    for face in faces:
-        landmarks = predictor(gray_frame, face)
 
-        top_nose = (landmarks.part(29).x, landmarks.part(29).y)
-        center_nose = (landmarks.part(30).x, landmarks.part(30).y)
+    for face in faces:
+        #find the facial landmarks, set up as tuples
+        landmarks = predictor(gray_frame, face) 
+        #Get nose position
         left_nose = (landmarks.part(31).x, landmarks.part(31).y)
         right_nose = (landmarks.part(35).x, landmarks.part(35).y)
+        top_nose = (landmarks.part(27).x, landmarks.part(27).y)
         bottom_nose = (landmarks.part(33).x, landmarks.part(33 ).y)
-
+        center_nose = (landmarks.part(30).x, landmarks.part(30).y)
+        """
+         #View the points adjust if needed
+        cv2.circle(frame, top_nose, 2, (255,0,0), 1)
+        cv2.circle(frame, left_nose, 2, (255,0,0), 1)
+        cv2.circle(frame, right_nose, 2, (255,0,0), 1)
+        cv2.circle(frame, bottom_nose, 2, (255,0,0), 1)
+        """
+        #Landmarks for the facemask
         left_face = (landmarks.part(17).x, landmarks.part(17).y)
         right_face = (landmarks.part(26).x, landmarks.part(26).y)
         center_face = (landmarks.part(27).x, landmarks.part(27).y)
 
-        #calculates the distance between right and left nose to scale the filter image
 
-        nose_width = int(hypot(left_nose[0] - right_nose[0], left_nose[1] - right_nose[1]) * 1.7)
 
+          
+        #Here using the distance formula to calculate the distance in euclidean space
+        nose_width = int(hypot(left_nose[0]-right_nose[0], 
+            left_nose[1]-right_nose[1])+ 30)
+        nose_height = int(nose_width)
+        
+
+        #Calculating the face width
         face_width = int(hypot(left_face[0] - right_face[0], left_face[1] - right_face[1]) * 1.2)
-
-        #finding the height, we take the proportion of the image size and multiply it with the width
-        # 660/900px                  
-        nose_height = int(nose_width * 0.73)
-
+        #face height
         face_height = int (face_width * 0.31)
 
-        #debugging for nose image width
-        #print(nose_width)
-        #print(nose_height)
-
-        #shows facemarkers facemarkers
-        #cv2.circle(frame, top_nose, 3, (255,0,0), 3)
-
-        #draw retancle from center point to insert image
-        
-        #top_left = (int(center_nose[0] - nose_width / 2), int(center_nose[1] - nose_height / 2))
-        #bottom_right = (int(center_nose[0] + nose_width / 2), int(center_nose[1] + nose_height / 2))
-
+        #Translating cartesion to euclidean
+        start_point = (int(center_nose[0] - nose_width/2), int(center_nose[1] - nose_width/2)) #int(landmarks.part(31).x, landmarks.parts(27).y)
+        end_point = (int(center_nose[0] + nose_width / 2), int(center_nose[1] + nose_height / 2)) #int(landmarks.part(35).x, landmarks.part(33).y)
+        #Cartesion to euclidean conversion for face landmarks
         top_left = (int(center_face[0] - face_width / 2),
-                              int(center_face[1] - face_height / 2))
+                    int(center_face[1] - face_height / 2))
         bottom_right = (int(center_face[0] + face_width / 2),
                        int(center_face[1] + face_height / 2))
-        
 
-        #rezise image
-        nose_pig = cv2.resize(nose_image, (nose_width, nose_height))
-
-        #mask_height = int(face_width* 0.20)
+        #Resize to the width of the original nose
+        resize_nose = cv2.resize(nose_image, (nose_width, nose_height))
+        #Resize facemask image
         face_guy = cv2.resize(mask_image, (face_width, face_height))
-        
-        
-        
 
-        #remove background from image
-        nose_pig_gray = cv2.cvtColor(nose_pig, cv2.COLOR_BGR2GRAY)
-        _, nose_mask = cv2.threshold(nose_pig_gray, 25, 255, cv2.THRESH_BINARY_INV)
-        nose_area = frame[top_left[1]: top_left[1] + nose_height,
-                    top_left[0]: top_left[0] + nose_width]
+        #remove background
+       
+        nose_gray = cv2.cvtColor(resize_nose, cv2.COLOR_BGR2GRAY)
+        _, nose_mask = cv2.threshold(nose_gray, 25, 255, cv2.THRESH_BINARY_INV)
+        nose_area = frame[start_point[1]: start_point[1] + nose_height,
+                    start_point[0]: start_point[0] + nose_width]
         nose_area_no_nose = cv2.bitwise_and(nose_area, nose_area, mask=nose_mask)
-        final_nose = cv2.add(nose_area_no_nose, nose_pig)
-
-
+        
+        #For the face
         face_guy_gray = cv2.cvtColor(face_guy, cv2.COLOR_BGR2GRAY)
         _, guy_mask = cv2.threshold(face_guy_gray, 255, 25, cv2.THRESH_BINARY)
         face_area = frame[top_left[1]: top_left[1] + face_height,
@@ -87,20 +94,48 @@ while True:
         face_area_no_guy = cv2.bitwise_and(face_area, face_area, mask=guy_mask)
         final_guy = cv2.add(face_area_no_guy, face_guy)
 
-
-
-        
-        #frame[top_left[1]: top_left[1] + nose_height, top_left[0]: top_left[0] + nose_width] = final_nose
+        final_nose = cv2.add(nose_area_no_nose, resize_nose)
+        frame[start_point[1]: start_point[1] + nose_height,
+                    start_point[0]: start_point[0] + nose_width] = final_nose
 
         frame[top_left[1]: top_left[1] + face_height, top_left[0]: top_left[0] + face_width] = final_guy
 
-        cv2.imshow("face mask", face_guy)
 
-        cv2.imshow("face mask gray", face_guy_gray)
-        cv2.imshow("no mask", guy_mask)
-        
-
+        #cv2.imshow("new nose", nose_image)
+        #cv2.imshow("nose_image", resize_nose)
+        #cv2.imshow('nosegray', nose_gray)
+        #cv2.imshow('nose', nose_mask)
+    
     cv2.imshow("Frame", frame)
+    
 
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+    #frame[start_point[1]: start_point[1] + nose_width,
+    #   start_point[0]: start_point[0] + nose_width] = final_nose
+
+    #Overlay image on the livefeed, using centernose as origin(Origo)
+    #using https://theailearner.com/2019/03/18/add-image-to-a-live-camera-feed-using-opencv-python/#:~:text=%20Steps%3A%20%201%20Take%20an%20image%20which,%28%29%206%20Press%20%E2%80%98q%E2%80%99%20to%20break%20More%20
+    #for reference
+    
+     
+
+    cv2.imshow("Capturing", frame)
+    key = cv2.waitKey(1)
+    if key == ord('s'): 
+        cv2.imwrite(filename='saved_img.jpg', img=frame)
+        webcam.release()
+        """
+        print("Processing image...")
+        img_ = cv2.imread('saved_img.jpg', cv2.IMREAD_ANYCOLOR)
+        print("Converting RGB image to grayscale...")
+        gray = cv2.cvtColor(img_, cv2.COLOR_BGR2GRAY)
+        print("Converted RGB image to grayscale...")
+        print("Resizing image to 28x28 scale...")
+        img_ = cv2.resize(gray,(28,28))
+        print("Resized...")
+        img_resized = cv2.imwrite(filename='saved_img-final.jpg', img=img_)
+        """
+        print("Image saved!")
+        
+        break  
+    elif cv2.waitKey(1) & 0xFF == ord('q'):
+            break
