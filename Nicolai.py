@@ -28,21 +28,21 @@ while True:
         right_nose = (landmarks.part(35).x, landmarks.part(35).y)
         bottom_nose = (landmarks.part(33).x, landmarks.part(33 ).y)
 
-        left_face = (landmarks.part(0).x, landmarks.part(0).y)
-        right_face = (landmarks.part(16).x, landmarks.part(16).y)
+        left_face = (landmarks.part(17).x, landmarks.part(17).y)
+        right_face = (landmarks.part(26).x, landmarks.part(26).y)
         center_face = (landmarks.part(27).x, landmarks.part(27).y)
 
         #calculates the distance between right and left nose to scale the filter image
 
         nose_width = int(hypot(left_nose[0] - right_nose[0], left_nose[1] - right_nose[1]) * 1.7)
 
-        face_width = int(hypot(left_face[0] - right_face[0], left_face[1] - right_face[1]))
+        face_width = int(hypot(left_face[0] - right_face[0], left_face[1] - right_face[1]) * 1.2)
 
         #finding the height, we take the proportion of the image size and multiply it with the width
         # 660/900px                  
         nose_height = int(nose_width * 0.73)
 
-        face_height = int (face_width * 0.10+40)
+        face_height = int (face_width * 0.31)
 
         #debugging for nose image width
         #print(nose_width)
@@ -81,7 +81,7 @@ while True:
 
 
         face_guy_gray = cv2.cvtColor(face_guy, cv2.COLOR_BGR2GRAY)
-        _, guy_mask = cv2.threshold(face_guy_gray, 25, 255, cv2.THRESH_BINARY_INV)
+        _, guy_mask = cv2.threshold(face_guy_gray, 255, 25, cv2.THRESH_BINARY)
         face_area = frame[top_left[1]: top_left[1] + face_height,
                     top_left[0]: top_left[0] + face_width]
         face_area_no_guy = cv2.bitwise_and(face_area, face_area, mask=guy_mask)
