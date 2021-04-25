@@ -97,7 +97,7 @@ while True:
         eyeMask()
     
     cv2.imshow("Capturing", frame)
-    #key = cv2.waitKey(1)
+    
     if keyboard.is_pressed('s'): 
         cv2.imwrite(filename='saved_img.jpg', img=frame)
         cap.release()
