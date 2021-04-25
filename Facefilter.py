@@ -8,20 +8,33 @@ from math import hypot
 
 #Call the webcam feed
 cap = cv2.VideoCapture(0)
+if not cap.isOpened:
+    print('--(!)Error opening video capture')
+    exit(0)
 
 #Import chosen photo for masking
 nose_image = cv2.imread("test.png")
 mask_image = cv2.imread("Mask.png")
 
-# call face detector and shapepredictor from dlib
+# call face detection cascade and shapepredictor from dlib
 #Download link at: https://github.com/GuoQuanhao/68_points/blob/master/shape_predictor_68_face_landmarks.dat
 detector = dlib.get_frontal_face_detector()
+if not face_cascade.load(cv.samples.findFile(face_cascade_name)):
+    print('--(!)Error loading face cascade')
+    exit(0)
 predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
+if not shape_predictor_68_face_landmarks.dat.load(cv.samples.findFile(shape_predictor_68_face_landmarks.dat)):
+    print('--(!)Error loading facial landmarks cascade')
+    exit(0)
+
 
 while True: 
     parse, frame = cap.read()
     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     faces = detector(frame)
+    if frame is None:
+        print('--(!) No captured frame -- Break!')
+        break
 
     for face in faces:
         def noseMask():
