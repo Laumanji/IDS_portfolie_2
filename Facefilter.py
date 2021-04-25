@@ -14,10 +14,8 @@ nose_image = cv2.imread("test.png")
 mask_image = cv2.imread("Mask.png")
 
 # call face detector and shapepredictor from dlib
-detector = dlib.get_frontal_face_detector()
-
-#File path of the shape prediction path
 #Download link at: https://github.com/GuoQuanhao/68_points/blob/master/shape_predictor_68_face_landmarks.dat
+detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
 
 parse, frame = cap.read()
