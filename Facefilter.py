@@ -1,5 +1,4 @@
 import cv2 
-import numpy as np
 import dlib
 from math import hypot
 import keyboard
@@ -22,13 +21,11 @@ predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
 
 parse, frame = cap.read()
 rows, cols, parse = frame.shape
-nose_mask = np.zeros((rows, cols), np.uint8)
 
 
 
 while True: 
     parse, frame = cap.read()
-    nose_mask.fill(0)
     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     faces = detector(frame)
 
