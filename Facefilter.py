@@ -31,17 +31,17 @@ while True:
             #Get nose position
             left_nose = (landmarks.part(31).x, landmarks.part(31).y)
             right_nose = (landmarks.part(35).x, landmarks.part(35).y)
-            top_nose = (landmarks.part(27).x, landmarks.part(27).y)
+            top_nose = (landmarks.part(28).x, landmarks.part(28).y)
             bottom_nose = (landmarks.part(33).x, landmarks.part(33 ).y)
             center_nose = (landmarks.part(30).x, landmarks.part(30).y)
 
             #Here using the distance formula to calculate the distance in euclidean space
             nose_width = int(hypot(left_nose[0]-right_nose[0], 
-                                    left_nose[1]-right_nose[1])+ 30)
-            nose_height = int(nose_width)
+                                    left_nose[1]-right_nose[1])+30)
+            nose_height = int(nose_width+20)
 
             #Translating cartesion to euclidean
-            start_point = (int(center_nose[0] - nose_width/2), int(center_nose[1] - nose_width/2)) #int(landmarks.part(31).x, landmarks.parts(27).y)
+            start_point = (int(center_nose[0] - nose_width/2), int(center_nose[1] - nose_width/2)-30) #int(landmarks.part(31).x, landmarks.parts(27).y)
             end_point = (int(center_nose[0] + nose_width / 2), int(center_nose[1] + nose_height / 2)) #int(landmarks.part(35).x, landmarks.part(33).y)
             #Resize to the width of the original nose
             resize_nose = cv2.resize(nose_image, (nose_width, nose_height))
