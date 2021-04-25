@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import dlib
 from math import hypot
+import keyboard
 
 #Made with help from https://pysource.com/2019/03/25/pigs-nose-instagram-face-filter-opencv-with-python/
 
@@ -99,14 +100,14 @@ while True:
     
     
     key = cv2.waitKey(1)
-    if key == ord('w'): 
+    if keyboard.is_pressed('w'): 
         noseMask()
-    if key == ord('e'):
+    if keyboard.is_pressed('e'):
         eyeMask()
     
     cv2.imshow("Capturing", frame)
     #key = cv2.waitKey(1)
-    if key == ord('s'): 
+    if keyboard.is_pressed('s'): 
         cv2.imwrite(filename='saved_img.jpg', img=frame)
         cap.release()
         print("Image saved!")   
