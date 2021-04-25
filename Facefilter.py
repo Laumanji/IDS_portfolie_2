@@ -18,11 +18,6 @@ mask_image = cv2.imread("Mask.png")
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
 
-parse, frame = cap.read()
-rows, cols, parse = frame.shape
-
-
-
 while True: 
     parse, frame = cap.read()
     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
