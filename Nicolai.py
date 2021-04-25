@@ -118,6 +118,7 @@ while True:
         noseMask()
     if key == ord('e'):
         eyeMask()
+    
     cv2.imshow("Capturing", frame)
     #key = cv2.waitKey(1)
     if key == ord('s'): 
