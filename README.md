@@ -6,8 +6,6 @@ openCV
 
 dlib
 
-numpy
-
 math (hypot)
 
 keyboard
