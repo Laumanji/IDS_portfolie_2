@@ -2,14 +2,11 @@ import cv2
 import numpy as np
 import dlib
 from math import hypot
-from time import sleep
-from scipy.spatial import distance as dist  
 
 #Made with help from https://pysource.com/2019/03/25/pigs-nose-instagram-face-filter-opencv-with-python/
 
 #Call the webcam feed
 cap = cv2.VideoCapture(0)
-#cap = cv2.VideoCapture(0)
 
 #Import chosen photo for masking
 nose_image = cv2.imread("test.png")
@@ -21,6 +18,7 @@ detector = dlib.get_frontal_face_detector()
 #File path of the shape prediction path
 #Download link at: https://github.com/GuoQuanhao/68_points/blob/master/shape_predictor_68_face_landmarks.dat
 predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
+
 parse, frame = cap.read()
 rows, cols, parse = frame.shape
 nose_mask = np.zeros((rows, cols), np.uint8)
@@ -44,13 +42,7 @@ while True:
             top_nose = (landmarks.part(27).x, landmarks.part(27).y)
             bottom_nose = (landmarks.part(33).x, landmarks.part(33 ).y)
             center_nose = (landmarks.part(30).x, landmarks.part(30).y)
-            """
-            #View the points adjust if needed
-            cv2.circle(frame, top_nose, 2, (255,0,0), 1)
-            cv2.circle(frame, left_nose, 2, (255,0,0), 1)
-            cv2.circle(frame, right_nose, 2, (255,0,0), 1)
-            cv2.circle(frame, bottom_nose, 2, (255,0,0), 1)
-            """
+
             #Here using the distance formula to calculate the distance in euclidean space
             nose_width = int(hypot(left_nose[0]-right_nose[0], 
                                     left_nose[1]-right_nose[1])+ 30)
@@ -61,7 +53,7 @@ while True:
             end_point = (int(center_nose[0] + nose_width / 2), int(center_nose[1] + nose_height / 2)) #int(landmarks.part(35).x, landmarks.part(33).y)
             #Resize to the width of the original nose
             resize_nose = cv2.resize(nose_image, (nose_width, nose_height))
-              #Overlay image on the livefeed, using centernose as origin(Origo)
+            #Overlay image on the livefeed, using centernose as origin(Origo)
             #using https://theailearner.com/2019/03/18/add-image-to-a-live-camera-feed-using-opencv-python/#:~:text=%20Steps%3A%20%201%20Take%20an%20image%20which,%28%29%206%20Press%20%E2%80%98q%E2%80%99%20to%20break%20More%20
         
             #remove background
@@ -82,13 +74,6 @@ while True:
             left_face = (landmarks.part(17).x, landmarks.part(17).y)
             right_face = (landmarks.part(26).x, landmarks.part(26).y)
             center_face = (landmarks.part(27).x, landmarks.part(27).y)
-
-            """
-            #View facepoint and adjust if needed
-            cv2.circle(frame, left_face, 2, (255,0,0), 1)
-            cv2.circle(frame, right_face, 2, (255,0,0), 1)
-            cv2.circle(frame, center_face, 2, (255,0,0), 1)
-            """
 
             #Calculating the face width
             face_width = int(hypot(left_face[0] - right_face[0], left_face[1] - right_face[1]) * 1.2)
