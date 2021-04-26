@@ -19,13 +19,9 @@ mask_image = cv2.imread("Mask.png")
 # call face detection cascade and shapepredictor from dlib
 #Download link at: https://github.com/GuoQuanhao/68_points/blob/master/shape_predictor_68_face_landmarks.dat
 detector = dlib.get_frontal_face_detector()
-if not face_cascade.load(cv.samples.findFile(face_cascade_name)):
-    print('--(!)Error loading face cascade')
-    exit(0)
+
 predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
-if not shape_predictor_68_face_landmarks.dat.load(cv.samples.findFile(shape_predictor_68_face_landmarks.dat)):
-    print('--(!)Error loading facial landmarks cascade')
-    exit(0)
+
 
 
 while True: 
@@ -110,7 +106,7 @@ while True:
         eyeMask()
     
     cv2.imshow("Capturing", frame)
-    
+    #key = cv2.waitKey(1)
     if keyboard.is_pressed('s'): 
         cv2.imwrite(filename='saved_img.jpg', img=frame)
         cap.release()
